@@ -1,5 +1,8 @@
 from random import choice
 from string import ascii_uppercase
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def get_grid():
@@ -22,42 +25,30 @@ size = X, Y = 2, 2
 grid = get_grid()
 neighbours = get_neighbours()
 
-# for letter1 in grid:
-#    path.append(letter1)
-#    paths.append(path[:])
-#
-#    for letter2 in neighbours[letter1]:
-#        path.append(letter2)
-#        paths.append(path[:])
-#
-#        for letter3 in neighbours[letter2]:
-#            path.append(letter3)
-#            paths.append(path[:])
-#
-#            for letter4 in neighbours[letter3]:
-#                path.append(letter4)
-#                path.append(path[:])
-#                path.pop()
-#
-#            path.pop()
-#        path.pop()
-#    path.pop()
-#
-# for path in path:
-#    print ''.join([grid[p] for p in path])
-
 paths = []
 
-def search(path):
-    if len(path) > size[0] * size[1]:
-        return
-    paths.append(path)
-    for next_pos in neighbours[path[-1]]:
-        search(path + [next_pos])
+def path_to_word(path):
+    return ''.join([grid[p] for p in path])
 
+def get_dictionary():
+    with open('words.txt') as f:
+        return [word.strip().upper() for word in f]
+
+def search(path):
+    word = path_to_word(path)
+    logging.debug('%s: %s' % (path, word))
+    if word in dictionary:
+        paths.append(path)
+    for next_pos in neighbours[path[-1]]:
+        if next_pos not in path:
+            search(path + [next_pos])
+        else:
+            logging.debug('skipping %s because in path' % grid[next_pos])
+
+dictionary = get_dictionary()
 
 for position in grid:
+    logging.info('search %s' % str(position))
     search([position])
 
-for path in paths:
-    print ''.join([grid[p] for p in path])
+    print [path_to_word(p) for p in paths]
