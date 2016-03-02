@@ -12,7 +12,7 @@ def get_neighbours():
     for position in grid:
         x, y = position
         positions = [(x - 1, y - 1), (x, y - 1), (x + 1, y - 1), (x + 1, y),
-                    (x + 1, y + 1), (x, y + 1), (x - 1, y + 1), (x - 1, y)]
+                     (x + 1, y + 1), (x, y + 1), (x - 1, y + 1), (x - 1, y)]
 
         neighbours[position] = [p for p in positions if 0 <= p[0] < X and 0 <= p[1] < Y]
     return neighbours
@@ -21,3 +21,43 @@ def get_neighbours():
 size = X, Y = 2, 2
 grid = get_grid()
 neighbours = get_neighbours()
+
+# for letter1 in grid:
+#    path.append(letter1)
+#    paths.append(path[:])
+#
+#    for letter2 in neighbours[letter1]:
+#        path.append(letter2)
+#        paths.append(path[:])
+#
+#        for letter3 in neighbours[letter2]:
+#            path.append(letter3)
+#            paths.append(path[:])
+#
+#            for letter4 in neighbours[letter3]:
+#                path.append(letter4)
+#                path.append(path[:])
+#                path.pop()
+#
+#            path.pop()
+#        path.pop()
+#    path.pop()
+#
+# for path in path:
+#    print ''.join([grid[p] for p in path])
+
+paths = []
+
+def search(path):
+    if len(path) > size[0] * size[1]:
+        return
+    paths.append(path)
+    for next_pos in neighbours[path[-1]]:
+        search(path + [next_pos])
+
+
+for position in grid:
+    search([position])
+
+for path in paths:
+    print ''.join([grid[p] for p in path])
