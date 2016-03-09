@@ -2,16 +2,17 @@ from random import choice
 from string import ascii_uppercase
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 def get_grid():
+    """Return a dictionary of grid positions"""
     return {(x, y): choice(ascii_uppercase) for x in range(X) for y in range(Y)}
 
 
 def get_neighbours():
+    """Return a dictionary with all the neighbours surrounding a particular position"""
     neighbours = {}
-
     for position in grid:
         x, y = position
         positions = [(x - 1, y - 1), (x, y - 1), (x + 1, y - 1), (x + 1, y),
@@ -21,20 +22,16 @@ def get_neighbours():
     return neighbours
 
 
-size = X, Y = 2, 2
-grid = get_grid()
-neighbours = get_neighbours()
-
-paths = []
-
 def path_to_word(path):
+    """Convert a list of grid positions to a word"""
     return ''.join([grid[p] for p in path])
-
-def get_dictionary():
+    """Return a list of uppercase english words"""
     with open('words.txt') as f:
         return [word.strip().upper() for word in f]
 
+
 def search(path):
+    """Recursively search the grid for words"""
     word = path_to_word(path)
     logging.debug('%s: %s' % (path, word))
     if word in dictionary:
@@ -45,10 +42,46 @@ def search(path):
         else:
             logging.debug('skipping %s because in path' % grid[next_pos])
 
+
+def get_dictionary():
+    """Return a list of uppercase english words, including word stem"""
+    stems, dictionary = set(), set()
+
+    with open('words.txt') as f:
+        for word in f:
+            word = word.strip().upper()
+            dictionary.add(word)
+
+            for i in range(len(word)):
+                stems.add(word[:i + i])
+    return dictionary, stems
+
+
+def get_words():
+    """Search each grid position and return all the words found"""
+    for position in grid:
+        logging.info('searching %s' % str(position))
+        search([position])
+        return [path_to_word(p) for p in paths]
+
+
+def print_grid(grid):
+    """Print the grid as a readable string"""
+    s = ''
+    for y in range(Y):
+        for x in range(X):
+            s += grid[x, y] + ' '
+        s += '\n'
+    print s
+
+
+size = X, Y = 3, 3
+grid = get_grid()
+print_grid(grid)
+
+neighbours = get_neighbours()
 dictionary = get_dictionary()
+paths = []
 
-for position in grid:
-    logging.info('search %s' % str(position))
-    search([position])
-
-    print [path_to_word(p) for p in paths]
+words = get_words()
+print words
